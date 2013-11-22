@@ -10,6 +10,8 @@ Requires Leiningen (`brew install leiningen`) and Java.
 
 Run `./install.sh` to build and install into `/usr/local/bin`.
 
+*Alternately*, just download a binary from [GitHub Releases](https://github.com/mcav/jsetags/releases).
+
 ## Usage
 
 Just run `jsetags` in your project directory. Detailed options are available with `jsetags -h`.
