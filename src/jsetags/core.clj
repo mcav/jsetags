@@ -5,9 +5,12 @@
   (:gen-class))
 
 ;; Main configuration options; edit these if you like.
-(def js-regexes [#"^(\s*?function\s*)(\S+?)\s*\("
-                 #"^(\s*?\b)(\S+?):\s*function"
-                 #"^(\s*?\S+\.)(\S+)\s*=\s*function"])
+;; Groups: [tag]
+(def js-regexes [#"^(?:\s*?function\s*)(\S+?)\s*\(" ;; named functions
+                 #"^(?:\s*?\b)(\S+?):\s*function" ;; assigned class fns
+                 #"^(?:\s*?\S+\.)(\S+)\s*=\s*function" ;; var-assigned fns
+                 #"^(?:\s*var)\s+(\S+)\s*=" ;; variables
+                 ])
 (def file-extensions [".js" ".jsm"])
 (def ^:dynamic *excluded-directories*
   #{".git" "node_modules" "build" "ext" "target" "output"})
@@ -50,14 +53,13 @@
   (loop [lines (line-seq (io/reader f)), tags [], lineno 1, offset 0]
     (if (seq lines)
       (let [line (first lines)]
-        (if-let [[context prefix tag] (some #(re-find % line)
-                                            js-regexes)]
+        (if-let [[context tag] (some #(re-find % line) js-regexes)]
           (do
             (swap! tags-total inc)
             (recur (rest lines)
                    (conj tags [lineno offset tag context])
-                     (inc lineno)
-                     (+ offset (inc (count line)))))
+                   (inc lineno)
+                   (+ offset (inc (count line)))))
           (recur (rest lines) tags (inc lineno) (+ offset (count line)))))
       tags)))
 
